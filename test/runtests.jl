@@ -1,4 +1,5 @@
 using WienerHopfScalar
+using ApproxFun
 using Test
 
 @testset "WienerHopfScalar.jl" begin
@@ -43,4 +44,208 @@ using Test
         end
 
     end
+
+    @testset "isolate_inf" begin
+        ∞₋ = -1e15
+        ∞₊ =  1e15
+
+        a = randn(ComplexF64)
+        b = randn(ComplexF64)
+
+        z = randn(ComplexF64)
+
+        import WienerHopfScalar: one2zero_phase
+
+        error,f = isolate_inf(a,b;z₊ = 1im, z₋ = -10im)
+
+        @test one2zero_phase(f,∞₊) ≈ 0 atol = 1e-12
+        @test one2zero_phase(f,∞₋) ≈ 1 atol = 1e-12
+        @test f(∞₋) ≈ a
+        @test f(∞₊) ≈ b
+        @test f(z,true)*f(z,false) ≈ f(z)  atol = 100*eps()
+        @test ncoefficients(Fun(f,Line())) < 2048
+    end
+
+    @testset "isabove" begin
+        import WienerHopfScalar: isabove
+		# Real line
+		@test  isabove(Fun(tanh,Line()), 1im)
+		@test !isabove(Fun(tanh,Line()),-1im)
+		@test  isabove(Fun(tanh,Line{-1/4}()), 1)
+		@test !isabove(Fun(tanh,Line{-1/4}()),-1)
+        @test  isabove(Fun(tanh,Chebyshev(Line())), 1im) == isabove(Line(), 1im)
+        @test  isabove(Chebyshev(Line()), 1im) == isabove(Line(), 1im)
+	end
+
+    @testset "index" begin
+        K = WienerHopfScalar.isolate_index(0)
+        z = randn(ComplexF64)
+        @test K(z) == 1
+        @test K(z,true) == 1
+        @test K(z,false) == 1
+    end
+
+    @testset "ConstantFunction" begin
+        z = -1
+        F = factorise(WienerHopfScalar.ScalarConstant(z))
+        @test F(z) == z
+        @test F(z,true) == F(z,false)
+        @test F(z,true)*F(z,false) == F(z)
+        @test factorise(F) == F
+
+        u = randn(ComplexF64,2)
+        U = [WienerHopfScalar.ScalarConstant(v) for v in u]
+        @test prod(U) == WienerHopfScalar.ScalarConstant(prod(u))
+
+        w = randn(ComplexF64)
+        γ = GammaKernel(randn(ComplexF64))
+        @test (2*γ)(w) ≈ 2*γ(w)
+        @test (γ*2)(w) ≈ 2*γ(w)
+    end
+
+    @testset "split" begin
+        p,m = factorise([im,-im,1+im],Line())
+        @test Set(p) == Set([im,1+im])
+        @test Set(m) == Set([-im])
+    end
+
+    @testset "GammaKernel" begin
+
+        k = 1
+        γ = GammaKernel(k)
+        @test real(γ( 2k))>0
+        @test real(γ(-2k))>0
+        @test @wienerhopf γ₊(-k) == 0
+        @test @wienerhopf γ₋( k) == 0
+        @test factorise(γ) == γ
+        z = randn(ComplexF64)
+        @test @wienerhopf γ₊(z)*γ₋(z) ≈ γ(z)
+        @test (γ^4)(z) == γ(z)^4
+    end
+
+    @testset "NobleKernel" begin
+        K = NobleKernel()
+        z = randn(ComplexF64)
+        @test K(z,true)*K(z,false) ≈ K(z)
+        @test K(z,true) == K(-z,false)
+        @test factorise(K) == K
+    end
+
+    # @testset "robin kernel" begin
+    #     sp = Chebyshev(Line{-1/4}(0.0))
+    #     K = RobinKernel(randn(ComplexF64),randn(ComplexF64))
+    #     error,L = isolate_inf(K,sp)
+    #     @test L == GammaKernel(wavenumber(K))
+    #     @test WienerHopfScalar.roots(K) == WienerHopfScalar.roots(NormalisedRobinKernel(K))
+
+    #     k = 1
+    #     μtest = [0.5,2,-2im,2im+2,-2im-2,-2im+2,-2+1im,-2+0.1im]
+    #     for μ ∈ μtest
+
+    #         K = RobinKernel(k,μ)
+    #         error,L = isolate_inf(K)
+    #         R = isolate_poleroot(K,Line())
+    #         Kl = logfactorise(K/(R*L),sp)
+    #         K1 = Kl*L*R
+    #         K2 = factorise(K,sp)
+
+    #         z = randn(ComplexF64)
+    #         @test K2(z) ≈ K1(z)
+    #         z = randn(ComplexF64)
+    #         @test K2(z,true)*K2(z,false) ≈ K2(z)
+    #         @test ncoefficients(Kl) < 512
+    #         @test ncoefficients(Fun(z->K2(z,true),-0.5k..0.5k)) < 512
+    #         @test ncoefficients(Fun(z->K2(z,false),-0.5k..0.5k)) < 512
+    #         r = WienerHopfScalar.roots(K)
+    #         r .+= 1e-12
+    #         if !isempty(r)
+    #             r₊,r₋ = factorise(r,Line())
+    #             for (_,x) in enumerate(r₊)
+    #                 @test isapprox(K2(x,false),0;atol = 1e-6)
+    #             end
+    #             for (_,x) in enumerate(r₋)
+    #                 @test isapprox(K2(x,true),0;atol = 1e-6)
+    #             end
+    #         end
+    #     end
+    # end
+
+    # @testset "log branch" begin
+    #     K = factorise(RobinKernel(1,2im+0.3),Line{-1/4}(0.0))
+    #     z = randn(ComplexF64)
+    #     @test K(z,true)*K(z,false) ≈ K(z)
+    #     L = NormalisedRobinKernel(RobinKernel(1,2im+0.3))
+	#     R = isolate_poleroot(L,Line())
+    #     sp = Chebyshev(Line{-1/4}(0.0))
+    #     H = logfactorise(L/R,sp)
+	#     @test ncoefficients(H) < 512
+    # end
+
+    # @testset "Rawlins kernel" begin
+    #     k = randn(Float64)
+    #     K = RawlinsKernel(k,2,3)
+    #     @test WienerHopfScalar.wavenumber(K) == complex(k)
+
+    #     k = 1
+
+    #     # factorise(RawlinsKernel(4,-20im-20,2),Chebyshev(Line{-1/4}(0.0))) gives negative winding number
+    #     μtest = [0.5,2,-2im,2im+2,2im-2,-2im-2,-2im+2]
+    #     for μ ∈ μtest
+    #         sp = Chebyshev(Line{-1/4}(0.0))
+    #         K = RawlinsKernel(k,μ,-2k)
+    #         error,L = isolate_inf(K)
+    #         R = isolate_poleroot(K,Line())
+    #         Kl = logfactorise((K/(R*L)),sp)
+    #         K1 = Kl*L*R
+    #         K2 = factorise(K,sp)
+
+    #         # Add test for poles and roots, and check that they are handled properly...
+    #         z = randn(ComplexF64)
+    #         @test K2(z) ≈ K1(z)
+    #         @test ncoefficients(Kl) < 512
+    #         @test ncoefficients(Fun(z->K2(z,true),-0.5k..0.5k)) < 512
+    #         @test ncoefficients(Fun(z->K2(z,false),-0.5k..0.5k)) < 512
+    #         z = randn(ComplexF64)
+    #         @test K2(z,true)*K2(z,false) ≈ K2(z)
+
+    #         r = WienerHopfScalar.roots(K)
+    #         r .+= 1e-12
+    #         if !isempty(r)
+    #             r₊,r₋ = factorise(r,Line())
+    #             for (_,x) in enumerate(r₊)
+    #                 @test isapprox(K2(x,false),0;atol = 1e-6)
+    #             end
+    #             for (_,x) in enumerate(r₋)
+    #                 @test isapprox(K2(x,true),0;atol = 1e-6)
+    #             end
+    #         end
+    #     end
+    # end
+
+
+    # @testset "Poroelastic kernel" begin
+    #     sp = Chebyshev(Line{-1/4}(0.0))
+
+    #     K = PoroelasticK()
+    #     k = abs(wavenumber(K))
+    #     H = factorise(K)
+    #     z = randn(ComplexF64)
+    #     @test H(z) ≈ K(z)
+    #     @test H(z,true)*H(z,false) ≈ H(z)
+    #     @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
+    #     @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+
+
+    #     I = PoroelasticI(K)
+    #     k = abs(wavenumber(I))
+    #     H = factorise(I)
+    #     z = randn(ComplexF64)
+    #     @test H(z) ≈ I(z)
+    #     @test H(z,true)*H(z,false) ≈ H(z)
+    #     @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
+    #     @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+
+    # end
+
+
 end
