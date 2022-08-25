@@ -55,7 +55,7 @@ function evaluate(K::PoroelasticK, z)
     return γ + μ + ζ / ((z² - α₁²) * (z² - α₂²))
 end
 
-isolate_inf(K::PoroelasticK) = false, GammaKernel(K)
+isolate_inf(K::PoroelasticK) = GammaKernel(K)
 
 struct PoroelasticI{T,S} <: WienerHopfKernel
     K::PoroelasticK{T,S}
@@ -64,7 +64,7 @@ PoroelasticK(I::PoroelasticI) = I.K
 wavenumber(I::PoroelasticI) = wavenumber(PoroelasticK(I))
 GammaKernel(I::PoroelasticI) = GammaKernel(PoroelasticK(I))
 roots_poly(I::PoroelasticI) = roots_poly(PoroelasticK(I))
-poles(::PoroelasticI{T,S}) where {T,S} = T[]
+poles(::PoroelasticI{T}) where {T} = T[]
 
 function evaluate(I::PoroelasticI, z)
     @unpack k, αₕ, Kᵣ, Ω, ε, μ = PoroelasticK(I)
@@ -75,4 +75,4 @@ function evaluate(I::PoroelasticI, z)
     return ((z² - α₁²) * (z² - α₂²)) * (γ + μ) + ζ
 end
 
-isolate_inf(I::PoroelasticI) = false, GammaKernel(I) * WienerHopfPair(Polynomial((10im, 1.0))^2, Polynomial((-10im, 1.0))^2)
+isolate_inf(I::PoroelasticI) = GammaKernel(I) * WienerHopfPair(Polynomial((10im, 1.0))^2, Polynomial((-10im, 1.0))^2)

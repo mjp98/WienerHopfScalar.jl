@@ -21,6 +21,8 @@ import SpecialFunctions: gamma
 
 export WienerHopfKernel
 export @wienerhopf
+export @nopoles
+export @noroots
 export WienerHopfPair
 
 export isolate_inf, isolate_poleroot
@@ -37,6 +39,7 @@ export wavenumber, compliance
 abstract type WienerHopfKernel <: AbstractScalarFunction end
 
 include("macros/wienerhopf.jl")
+include("macros/nopoles.jl")
 include("util/util.jl")
 
 include("kernel-basic/nan.jl")
@@ -53,7 +56,6 @@ defaultspace(::WienerHopfKernel) = Chebyshev(Line{-1 / 4}(0.0))
 defaultscale(K::WienerHopfKernel) = 1
 defaultpoint(K::WienerHopfKernel, u::Bool) = 10im * defaultscale(K) * lsign(u) + randn(Float64) - 10
 
-
 function factorise(K::WienerHopfKernel,sp::Space)
     L = isolate_inf(K)
     R = isolate_poleroot(K, Line())
@@ -61,7 +63,7 @@ function factorise(K::WienerHopfKernel,sp::Space)
 end
 factorise(K::WienerHopfKernel) = factorise(K, defaultspace(K))
 
-
+include("generic/template.jl")
 include("kernel-zoo/zoo.jl")
 
 end

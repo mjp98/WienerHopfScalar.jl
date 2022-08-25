@@ -170,82 +170,82 @@ using Test
         end
     end
 
-    # @testset "log branch" begin
-    #     K = factorise(RobinKernel(1,2im+0.3),Line{-1/4}(0.0))
-    #     z = randn(ComplexF64)
-    #     @test K(z,true)*K(z,false) ≈ K(z)
-    #     L = NormalisedRobinKernel(RobinKernel(1,2im+0.3))
-	#     R = isolate_poleroot(L,Line())
-    #     sp = Chebyshev(Line{-1/4}(0.0))
-    #     H = logfactorise(L/R,sp)
-	#     @test ncoefficients(H) < 512
-    # end
+    @testset "log branch" begin
+        K = factorise(RobinKernel(1,2im+0.3),Chebyshev(Line{-1/4}(0.0)))
+        z = randn(ComplexF64)
+        @test K(z,true)*K(z,false) ≈ K(z)
+        L = NormalisedRobinKernel(RobinKernel(1,2im+0.3))
+	    R = isolate_poleroot(L,Line())
+        sp = Chebyshev(Line{-1/4}(0.0))
+        H = logfactorise(L/R,sp)
+	    @test ncoefficients(H) < 512
+    end
 
-    # @testset "Rawlins kernel" begin
-    #     k = randn(Float64)
-    #     K = RawlinsKernel(k,2,3)
-    #     @test WienerHopfScalar.wavenumber(K) == complex(k)
+    @testset "Rawlins kernel" begin
+        k = randn(Float64)
+        K = RawlinsKernel(k,2,3)
+        @test WienerHopfScalar.wavenumber(K) == complex(k)
 
-    #     k = 1
+        k = 1
 
-    #     # factorise(RawlinsKernel(4,-20im-20,2),Chebyshev(Line{-1/4}(0.0))) gives negative winding number
-    #     μtest = [0.5,2,-2im,2im+2,2im-2,-2im-2,-2im+2]
-    #     for μ ∈ μtest
-    #         sp = Chebyshev(Line{-1/4}(0.0))
-    #         K = RawlinsKernel(k,μ,-2k)
-    #         error,L = isolate_inf(K)
-    #         R = isolate_poleroot(K,Line())
-    #         Kl = logfactorise((K/(R*L)),sp)
-    #         K1 = Kl*L*R
-    #         K2 = factorise(K,sp)
+        # factorise(RawlinsKernel(4,-20im-20,2),Chebyshev(Line{-1/4}(0.0))) gives negative winding number
+        μtest = [0.5,2,-2im,2im+2,2im-2,-2im-2,-2im+2]
+        for μ ∈ μtest
+            sp = Chebyshev(Line{-1/4}(0.0))
+            K = RawlinsKernel(k,μ,-2k)
+            L = isolate_inf(K)
+            R = isolate_poleroot(K,Line())
+            Kl = logfactorise((K/(R*L)),sp)
+            K1 = Kl*L*R
+            K2 = factorise(K,sp)
 
-    #         # Add test for poles and roots, and check that they are handled properly...
-    #         z = randn(ComplexF64)
-    #         @test K2(z) ≈ K1(z)
-    #         @test ncoefficients(Kl) < 512
-    #         @test ncoefficients(Fun(z->K2(z,true),-0.5k..0.5k)) < 512
-    #         @test ncoefficients(Fun(z->K2(z,false),-0.5k..0.5k)) < 512
-    #         z = randn(ComplexF64)
-    #         @test K2(z,true)*K2(z,false) ≈ K2(z)
+            # Add test for poles and roots, and check that they are handled properly...
+            z = randn(ComplexF64)
+            @test K2(z) ≈ K1(z)
+            @test ncoefficients(Kl) < 512
+            @test ncoefficients(Fun(z->K2(z,true),-0.5k..0.5k)) < 512
+            @test ncoefficients(Fun(z->K2(z,false),-0.5k..0.5k)) < 512
+            z = randn(ComplexF64)
+            @test K2(z,true)*K2(z,false) ≈ K2(z)
 
-    #         r = WienerHopfScalar.roots(K)
-    #         r .+= 1e-12
-    #         if !isempty(r)
-    #             r₊,r₋ = factorise(r,Line())
-    #             for (_,x) in enumerate(r₊)
-    #                 @test isapprox(K2(x,false),0;atol = 1e-6)
-    #             end
-    #             for (_,x) in enumerate(r₋)
-    #                 @test isapprox(K2(x,true),0;atol = 1e-6)
-    #             end
-    #         end
-    #     end
-    # end
-
-
-    # @testset "Poroelastic kernel" begin
-    #     sp = Chebyshev(Line{-1/4}(0.0))
-
-    #     K = PoroelasticK()
-    #     k = abs(wavenumber(K))
-    #     H = factorise(K)
-    #     z = randn(ComplexF64)
-    #     @test H(z) ≈ K(z)
-    #     @test H(z,true)*H(z,false) ≈ H(z)
-    #     @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
-    #     @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+            r = WienerHopfScalar.roots(K)
+            r .+= 1e-12
+            if !isempty(r)
+                r₊,r₋ = factorise(r,Line())
+                for (_,x) in enumerate(r₊)
+                    @test isapprox(K2(x,false),0;atol = 1e-6)
+                end
+                for (_,x) in enumerate(r₋)
+                    @test isapprox(K2(x,true),0;atol = 1e-6)
+                end
+            end
+        end
+    end
 
 
-    #     I = PoroelasticI(K)
-    #     k = abs(wavenumber(I))
-    #     H = factorise(I)
-    #     z = randn(ComplexF64)
-    #     @test H(z) ≈ I(z)
-    #     @test H(z,true)*H(z,false) ≈ H(z)
-    #     @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
-    #     @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+    @testset "Poroelastic kernel" begin
+        sp = Chebyshev(Line{-1/4}(0.0))
 
-    # end
+        K = PoroelasticK()
+        k = abs(wavenumber(K))
+        H = factorise(K)
+        z = randn(ComplexF64)
+        @test H(z) ≈ K(z)
+        @test H(z,true)*H(z,false) ≈ H(z)
+        @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
+        @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+
+
+        I = PoroelasticI(K)
+        k = abs(wavenumber(I))
+        H = factorise(I)
+        z = randn(ComplexF64)
+        @test H(z) ≈ I(z)
+        @test H(z,true)*H(z,false) ≈ H(z)
+        @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
+        @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+
+    end
 
 
 end

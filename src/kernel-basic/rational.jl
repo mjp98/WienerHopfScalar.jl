@@ -27,7 +27,7 @@ end
 poles(K::SplitRationalKernel, u) = poles(K(u))
 roots(K::SplitRationalKernel, u) = roots(K(u))
 
-function isolate_poleroot(K::AbstractScalarFunction, d::Union{Space,Domain}, z₋=-10.0im, z₊=10.0im)
+function isolate_poleroot(K::WienerHopfKernel, d::Union{Space,Domain}, z₋=-10.0im, z₊=10.0im)
     L = factorise(ScalarRational(poles(K), roots(K)), d)
     return isolate_poleroot(L, z₋, z₊)
 end
@@ -36,7 +36,7 @@ function isolate_poleroot(K::SplitRationalKernel, z₋, z₊)
     K₊ = isolate_poleroot(K.plus, z₋)
     return SplitRationalKernel(K₊, K₋)
 end
-function isolate_poleroot(K::AbstractScalarFunction, z)
+function isolate_poleroot(K::AbstractScalarFunction, z::Number)
     return isolate_poleroot(poles(K), roots(K), z)
 end
 function isolate_poleroot(poles::AbstractVector{T}, roots::AbstractVector{T}, z) where {T}
