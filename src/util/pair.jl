@@ -3,7 +3,7 @@ struct WienerHopfPair{P,M} <: WienerHopfKernel
     m::M
 end
 getindex(K::WienerHopfPair, u::Bool) = u ? K.p : K.m
-evaluate(K::WienerHopfPair, u::Bool) = K[u]
+#evaluate(K::WienerHopfPair, u::Bool) = K[u]
 evaluate(K::WienerHopfPair, α, u) = K[u](α)
 evaluate(K::WienerHopfPair, α) = evaluate(K, α, true) * evaluate(K, α, false)
 factorise(K::WienerHopfPair, args...) = K

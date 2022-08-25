@@ -1,8 +1,6 @@
 module WienerHopfScalar
 
 
-@show "I'm updated"
-
 using Reexport
 
 @reexport using ApproxFun
@@ -27,6 +25,7 @@ export @wienerhopf
 export @nopoles
 export @noroots
 export WienerHopfPair
+export WienerHopfNaN
 
 export isolate_inf, isolate_poleroot
 export logfactorise, factorise, factors

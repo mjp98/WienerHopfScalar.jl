@@ -6,5 +6,5 @@ function isaboveline(c, θ, z)
     return imag(w) > 0 || (imag(w) == 0 && real(w) > 0)
 end
 
-forceabove(z, d) = isabove(z, d) ? z : -z
-forceabove(z, d, u) = (u && isabove(z, d)) ? z : -z
+forceabove(z, d) = isabove(d, z) ? z : -z
+forceabove(z, d, u) = (u && isabove(d, z)) ? z : -z

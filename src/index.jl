@@ -7,50 +7,50 @@ end
 
 # Refactor this into smaller functions
 
-struct BranchJump{T<:Number}
-    x::T
-    n::Int
-end
+# struct BranchJump{T<:Number}
+#     x::T
+#     n::Int
+# end
 
-struct BranchData{T}
-    jumps::StructVector{BranchJump{T}}
-end
+# struct BranchData{T}
+#     jumps::StructVector{BranchJump{T}}
+# end
 
-BranchData(a, b) = StructArray{BranchJump{eltype(a)}}((a, b))
+# BranchData(a, b) = StructArray{BranchJump{eltype(a)}}((a, b))
 
-jumps(d::BranchData) = d.jumps
-windingnumber(d::BranchData) = sum(jumps(d).n)
+# jumps(d::BranchData) = d.jumps
+# windingnumber(d::BranchData) = sum(jumps(d).n)
 
-function logbranchdata(f::Fun; tol=1e-6)
-    if domain(f) !== canonicaldomain(f)
-        canonicalf = setcanonicaldomain(copy(f))
-        return logbranchdata(canonicalf; tol, ε)
-    end
-    realF, imagF = reim(F)
-    x = ApproxFun.roots(imagF)
-    filter!(z -> abs(z) < 1 - sqrt(tol), x)  # remove endpoints
-    filter!(z -> realF(z) < 0, x)            # log branch on negative real axis
+# function logbranchdata(f::Fun; tol=1e-6)
+#     if domain(f) !== canonicaldomain(f)
+#         canonicalf = setcanonicaldomain(copy(f))
+#         return logbranchdata(canonicalf; tol, ε)
+#     end
+#     realF, imagF = reim(F)
+#     x = ApproxFun.roots(imagF)
+#     filter!(z -> abs(z) < 1 - sqrt(tol), x)  # remove endpoints
+#     filter!(z -> realF(z) < 0, x)            # log branch on negative real axis
 
-    any(abs(z) < tol for z in x) && @warn "possible branch cut at origin"
+#     any(abs(z) < tol for z in x) && @warn "possible branch cut at origin"
 
-    sort!(x)                                 # sort
-    Δ = [lsign(imagF(leftvalue(z, tol)) < 0) for z in x]
-    return BranchData(x, cumsum(Δ))
-end
+#     sort!(x)                                 # sort
+#     Δ = [lsign(imagF(leftvalue(z, tol)) < 0) for z in x]
+#     return BranchData(x, cumsum(Δ))
+# end
 
-struct ContinuousLog{T<:Fun,S<:BranchData}
-    f::T
-    data::S
-end
-@forward ContinuousLog.data jumps
+# struct ContinuousLog{T<:Fun,S<:BranchData}
+#     f::T
+#     data::S
+# end
+# @forward ContinuousLog.data jumps
 
-function evaluate(f::ContinuousLog, z)
-    fz = f.f(z)
-    for (; x, n) in jumps(f)
-        z < x && return log(fz) - n * i2π
-    end
-    return log(fz)
-end
+# function evaluate(f::ContinuousLog, z)
+#     fz = f.f(z)
+#     for (; x, n) in jumps(f)
+#         z < x && return log(fz) - n * i2π
+#     end
+#     return log(fz)
+# end
 
 # function continuouslog(logf::Fun,data::BranchData)
 #     if any(n != 0 for n in data.jumps.n)

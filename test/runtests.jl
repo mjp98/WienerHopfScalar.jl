@@ -2,6 +2,8 @@ using WienerHopfScalar
 using ApproxFun
 using Test
 
+import WienerHopfScalar: forceabove
+
 @testset "WienerHopfScalar.jl" begin
 
     @testset "remove ₊₋⁺⁻ macro" begin
@@ -75,6 +77,11 @@ using Test
 		@test !isabove(Fun(tanh,Line{-1/4}()),-1)
         @test  isabove(Fun(tanh,Chebyshev(Line())), 1im) == isabove(Line(), 1im)
         @test  isabove(Chebyshev(Line()), 1im) == isabove(Line(), 1im)
+
+        @test forceabove(1im,Line()) == 1im
+        @test forceabove(-1im,Line()) == 1im
+        @test forceabove(1im,Line(),true) == 1im
+        @test forceabove(1im,Line(),false) == -1im
 	end
 
     @testset "index" begin
@@ -179,6 +186,12 @@ using Test
         sp = Chebyshev(Line{-1/4}(0.0))
         H = logfactorise(L/R,sp)
 	    @test ncoefficients(H) < 512
+    end
+
+    @testset "NaN kernel" begin
+        K = WienerHopfNaN()
+        @test isnan(K(0.2))
+        @test isnan(K(0.2,true))
     end
 
     @testset "Rawlins kernel" begin
