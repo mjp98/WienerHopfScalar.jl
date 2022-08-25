@@ -150,9 +150,9 @@ version = "1.0.3"
 
 [[DiffRules]]
 deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
-git-tree-sha1 = "28d605d9a0ac17118fe2c5e9ce0fbb76c3ceb120"
+git-tree-sha1 = "992a23afdb109d0d2f8802a30cf5ae4b1fe7ea68"
 uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
-version = "1.11.0"
+version = "1.11.1"
 
 [[DocStringExtensions]]
 deps = ["LibGit2"]
@@ -162,9 +162,10 @@ version = "0.9.1"
 
 [[DomainSets]]
 deps = ["CompositeTypes", "IntervalSets", "LinearAlgebra", "StaticArrays", "Statistics"]
-git-tree-sha1 = "b909ae024533935c809fb946b7f26e7eef5d1106"
+git-tree-sha1 = "ac425eea956013b51e7891bef3c33684b7d37029"
+pinned = true
 uuid = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
-version = "0.5.12"
+version = "0.5.11"
 
 [[Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
@@ -235,7 +236,7 @@ version = "0.1.1"
 
 [[HolomorphicFun]]
 deps = ["ApproxFun", "ApproxFunFourier", "DomainSets", "Lazy", "LinearAlgebra", "SingularIntegralEquations", "TaylorSeries"]
-git-tree-sha1 = "6acf54304e84df17f794af7bf987c2fbe122fc38"
+git-tree-sha1 = "c9ea042fc254dde33b9f4289e964b59cd2ca1c2e"
 repo-rev = "main"
 repo-url = "https://github.com/mjp98/HolomorphicFun.jl"
 uuid = "856dd008-ac59-4279-b7ad-7b5f1a10bcbb"
@@ -378,9 +379,9 @@ version = "0.5.2"
 
 [[MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
-git-tree-sha1 = "e595b205efd49508358f7dc670a940c790204629"
+git-tree-sha1 = "41d162ae9c868218b1f3fe78cba878aa348c2d26"
 uuid = "856f044c-d86e-5d09-b602-aeab76dc8ba7"
-version = "2022.0.0+0"
+version = "2022.1.0+0"
 
 [[MPFR_jll]]
 deps = ["Artifacts", "GMP_jll", "Libdl"]
@@ -560,14 +561,14 @@ version = "2.1.7"
 
 [[StaticArrays]]
 deps = ["LinearAlgebra", "Random", "StaticArraysCore", "Statistics"]
-git-tree-sha1 = "85bc4b051546db130aeb1e8a696f1da6d4497200"
+git-tree-sha1 = "dfec37b90740e3b9aa5dc2613892a3fc155c3b42"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.5.5"
+version = "1.5.6"
 
 [[StaticArraysCore]]
-git-tree-sha1 = "5b413a57dd3cea38497d745ce088ac8592fbb5be"
+git-tree-sha1 = "ec2bd695e905a3c755b33026954b119ea17f2d22"
 uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.1.0"
+version = "1.3.0"
 
 [[StaticUnivariatePolynomials]]
 git-tree-sha1 = "7b83ff383df0eb24aa606eebb360e352ca0a4e2c"

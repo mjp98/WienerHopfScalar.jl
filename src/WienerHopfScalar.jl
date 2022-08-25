@@ -1,11 +1,13 @@
 module WienerHopfScalar
 
-using ApproxFun
+using Reexport
+
+@reexport using ApproxFun
 using HolomorphicFun
 using Lazy
 using MacroTools
 using PolynomialRoots
-using SingularIntegralEquations
+@reexport using SingularIntegralEquations
 using StaticArrays
 using StaticUnivariatePolynomials
 using StructArrays
@@ -52,14 +54,10 @@ defaultscale(K::WienerHopfKernel) = 1
 defaultpoint(K::WienerHopfKernel, u::Bool) = 10im * defaultscale(K) * lsign(u) + randn(Float64) - 10
 
 
-function factorise(K::WienerHopfKernel, sp, args...)
-    error_inf, L = isolate_inf(K)
+function factorise(K::WienerHopfKernel,sp::Space)
+    L = isolate_inf(K)
     R = isolate_poleroot(K, Line())
-    if error_inf
-        return WienerHopfNaN()
-    else
-        return logfactorise(K / (L * R), sp, args...) * L * R
-    end
+    return (logfactorise(K / (L * R), sp) * L) * R
 end
 factorise(K::WienerHopfKernel) = factorise(K, defaultspace(K))
 

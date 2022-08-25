@@ -56,7 +56,7 @@ using Test
 
         import WienerHopfScalar: one2zero_phase
 
-        error,f = isolate_inf(a,b;z₊ = 1im, z₋ = -10im)
+        f = isolate_inf(a,b;z₊ = 1im, z₋ = -10im)
 
         @test one2zero_phase(f,∞₊) ≈ 0 atol = 1e-12
         @test one2zero_phase(f,∞₋) ≈ 1 atol = 1e-12
@@ -131,44 +131,44 @@ using Test
         @test factorise(K) == K
     end
 
-    # @testset "robin kernel" begin
-    #     sp = Chebyshev(Line{-1/4}(0.0))
-    #     K = RobinKernel(randn(ComplexF64),randn(ComplexF64))
-    #     error,L = isolate_inf(K,sp)
-    #     @test L == GammaKernel(wavenumber(K))
-    #     @test WienerHopfScalar.roots(K) == WienerHopfScalar.roots(NormalisedRobinKernel(K))
+    @testset "robin kernel" begin
+        sp = Chebyshev(Line{-1/4}(0.0))
+        K = RobinKernel(randn(ComplexF64),randn(ComplexF64))
+        L = isolate_inf(K,sp)
+        @test L == GammaKernel(wavenumber(K))
+        @test WienerHopfScalar.roots(K) == WienerHopfScalar.roots(NormalisedRobinKernel(K))
 
-    #     k = 1
-    #     μtest = [0.5,2,-2im,2im+2,-2im-2,-2im+2,-2+1im,-2+0.1im]
-    #     for μ ∈ μtest
+        k = 1
+        μtest = [0.5,2,-2im,2im+2,-2im-2,-2im+2,-2+1im,-2+0.1im]
+        for μ ∈ μtest
 
-    #         K = RobinKernel(k,μ)
-    #         error,L = isolate_inf(K)
-    #         R = isolate_poleroot(K,Line())
-    #         Kl = logfactorise(K/(R*L),sp)
-    #         K1 = Kl*L*R
-    #         K2 = factorise(K,sp)
+            K = RobinKernel(k,μ)
+            L = isolate_inf(K)
+            R = isolate_poleroot(K,Line())
+            Kl = logfactorise(K/(R*L),sp)
+            K1 = Kl*L*R
+            K2 = factorise(K,sp)
 
-    #         z = randn(ComplexF64)
-    #         @test K2(z) ≈ K1(z)
-    #         z = randn(ComplexF64)
-    #         @test K2(z,true)*K2(z,false) ≈ K2(z)
-    #         @test ncoefficients(Kl) < 512
-    #         @test ncoefficients(Fun(z->K2(z,true),-0.5k..0.5k)) < 512
-    #         @test ncoefficients(Fun(z->K2(z,false),-0.5k..0.5k)) < 512
-    #         r = WienerHopfScalar.roots(K)
-    #         r .+= 1e-12
-    #         if !isempty(r)
-    #             r₊,r₋ = factorise(r,Line())
-    #             for (_,x) in enumerate(r₊)
-    #                 @test isapprox(K2(x,false),0;atol = 1e-6)
-    #             end
-    #             for (_,x) in enumerate(r₋)
-    #                 @test isapprox(K2(x,true),0;atol = 1e-6)
-    #             end
-    #         end
-    #     end
-    # end
+            z = randn(ComplexF64)
+            @test K2(z) ≈ K1(z)
+            z = randn(ComplexF64)
+            @test K2(z,true)*K2(z,false) ≈ K2(z)
+            @test ncoefficients(Kl) < 512
+            @test ncoefficients(Fun(z->K2(z,true),-0.5k..0.5k)) < 512
+            @test ncoefficients(Fun(z->K2(z,false),-0.5k..0.5k)) < 512
+            r = WienerHopfScalar.roots(K)
+            r .+= 1e-12
+            if !isempty(r)
+                r₊,r₋ = factorise(r,Line())
+                for (_,x) in enumerate(r₊)
+                    @test isapprox(K2(x,false),0;atol = 1e-6)
+                end
+                for (_,x) in enumerate(r₋)
+                    @test isapprox(K2(x,true),0;atol = 1e-6)
+                end
+            end
+        end
+    end
 
     # @testset "log branch" begin
     #     K = factorise(RobinKernel(1,2im+0.3),Line{-1/4}(0.0))

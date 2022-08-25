@@ -1,13 +1,8 @@
 isolate_infpow(K::WienerHopfKernel; kwargs...) = isolate_infpow(leftlimit(K), rightlimit(K); kwargs...)
 isolate_inf(K::WienerHopfKernel; kwargs...) = isolate_inf(leftlimit(K), rightlimit(K); kwargs...)
 function parse_inf(l, r; tol=1e-14)
-    error = false
-    abs(l) < tol && @error "K ≈ 0 as z → -∞"
-    abs(r) < tol && @error "K ≈ 0 as z → +∞"
-    if (abs(r) < tol || abs(l) < tol)
-        error = true
-    end
-    return error
+    abs(l) < tol && return @error "K ≈ 0 as z → -∞"
+    abs(r) < tol && return @error "K ≈ 0 as z → +∞"
 end
 
 struct IsolatedInfLog{T<:Number} <: WienerHopfKernel
@@ -23,7 +18,7 @@ function half2zero_phase(f::IsolatedInfLog, z, u)
     if u
         return -(log(-im * (z - f.z₋)) - log(-1im)) / (-i2π)
     else
-        return (log(im * (z - f.z₊)) - log(im)) / (-i2π)
+        return  (log( im * (z - f.z₊)) - log( 1im)) / (-i2π)
     end
 end
 
@@ -39,14 +34,14 @@ end
 
 function evaluate(f::IsolatedInfLog, z, u)
     c₋, c₊ = cphase(f)
-    x = c₊ / 2 + (c₋ - c₊) * half2zero_phase(f, z, u)
+    x = c₊ / 2 + (c₋ - c₊) * half2zero_phase(f, z,  u)
     return exp(i2π * x)
 end
 
 function isolate_inf(l, r; z₊=10im, z₋=-10im, tol=1e-14)
-    error = parse_inf(l, r; tol)
+    parse_inf(l, r; tol)
     isolated = make_inf(l, r, z₊, z₋)
-    return error, isolated
+    return isolated
 end
 
 function make_inf(l, r, z₊=10im, z₋=-10im)
@@ -55,9 +50,9 @@ function make_inf(l, r, z₊=10im, z₋=-10im)
 end
 
 function isolate_infpow(l, r; z₊=10im, z₋=-10im, tol=1e-14)
-    error = parse_inf(l, r; tol)
+    parse_inf(l, r; tol)
     isolated = make_infpow(l, r, z₊, z₋)
-    return error, isolated
+    return isolated
 end
 
 function make_infpow(l, r, z₊=10im, z₋=-10im)

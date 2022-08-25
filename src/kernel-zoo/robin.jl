@@ -16,7 +16,7 @@ evaluate(K::RobinKernel, z) = evaluate(GammaKernel(K), z) + compliance(K)
 
 roots_poly(K::RobinKernel) = Polynomial((-compliance(K)^2 - wavenumber(K)^2, 0, 1))
 
-isolate_inf(K::RobinKernel, args...) = false, GammaKernel(K)
+isolate_inf(K::RobinKernel, args...) = GammaKernel(K)
 
 struct NormalisedRobinKernel{T} <: WienerHopfKernel
     K::T
