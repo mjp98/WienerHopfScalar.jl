@@ -1,5 +1,8 @@
 module WienerHopfScalar
 
+
+@show "I'm updated"
+
 using Reexport
 
 @reexport using ApproxFun
