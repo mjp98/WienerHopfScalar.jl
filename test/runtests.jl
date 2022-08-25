@@ -2,7 +2,7 @@ using WienerHopfScalar
 using ApproxFun
 using Test
 
-import WienerHopfScalar: forceabove
+import WienerHopfScalar: forceabove, defaultscale
 
 @testset "WienerHopfScalar.jl" begin
 
@@ -128,6 +128,9 @@ import WienerHopfScalar: forceabove
         z = randn(ComplexF64)
         @test @wienerhopf γ₊(z)*γ₋(z) ≈ γ(z)
         @test (γ^4)(z) == γ(z)^4
+
+        @test γ[true](0.2) ≈ γ(0.2,true)
+        @test defaultscale(γ) == k
     end
 
     @testset "NobleKernel" begin
@@ -140,10 +143,16 @@ import WienerHopfScalar: forceabove
 
     @testset "robin kernel" begin
         sp = Chebyshev(Line{-1/4}(0.0))
-        K = RobinKernel(randn(ComplexF64),randn(ComplexF64))
+        k = randn(ComplexF64)
+        K = RobinKernel(k,randn(ComplexF64))
         L = isolate_inf(K,sp)
         @test L == GammaKernel(wavenumber(K))
         @test WienerHopfScalar.roots(K) == WienerHopfScalar.roots(NormalisedRobinKernel(K))
+        @test GammaKernel(K,0.2) == GammaKernel(k)(0.2)
+
+
+        @test WienerHopfScalar.roots_poly(K) == WienerHopfScalar.roots_poly(NormalisedRobinKernel(K))
+
 
         k = 1
         μtest = [0.5,2,-2im,2im+2,-2im-2,-2im+2,-2+1im,-2+0.1im]
@@ -257,6 +266,8 @@ import WienerHopfScalar: forceabove
         @test H(z,true)*H(z,false) ≈ H(z)
         @test ncoefficients(Fun(z->H(z,true),-0.5abs(k)..0.5abs(k))) < 512
         @test ncoefficients(Fun(z->H(z,false),-0.5abs(k)..0.5abs(k))) < 512
+
+        @test all(isabove(Line(),z) for z in WienerHopfScalar.poles⁺(K))
 
     end
 

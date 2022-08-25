@@ -1,5 +1,5 @@
-isolate_infpow(K::WienerHopfKernel; kwargs...) = isolate_infpow(leftlimit(K), rightlimit(K); kwargs...)
 isolate_inf(K::WienerHopfKernel; kwargs...) = isolate_inf(leftlimit(K), rightlimit(K); kwargs...)
+
 function parse_inf(l, r; tol=1e-14)
     abs(l) < tol && return @error "K ≈ 0 as z → -∞"
     abs(r) < tol && return @error "K ≈ 0 as z → +∞"
@@ -49,17 +49,19 @@ function make_inf(l, r, z₊=10im, z₋=-10im)
     return IsolatedInfLog(promote(c₊, c₋, z₊, z₋)...)
 end
 
-function isolate_infpow(l, r; z₊=10im, z₋=-10im, tol=1e-14)
-    parse_inf(l, r; tol)
-    isolated = make_infpow(l, r, z₊, z₋)
-    return isolated
-end
+# function isolate_infpow(l, r; z₊=10im, z₋=-10im, tol=1e-14)
+#     parse_inf(l, r; tol)
+#     isolated = make_infpow(l, r, z₊, z₋)
+#     return isolated
+# end
 
-function make_infpow(l, r, z₊=10im, z₋=-10im)
-    c₋, c₊ = cphase(l), cphase(r)
-    scale = cispi(c₊)
-    Δ = c₊ - c₋
-    K₊ = Power(scale, z₋, -Δ, im)
-    K₋ = Power(scale, z₊, Δ, -im)
-    return WienerHopfPair(K₊, K₋)
-end
+# function make_infpow(l, r, z₊=10im, z₋=-10im)
+#     c₋, c₊ = cphase(l), cphase(r)
+#     scale = cispi(c₊)
+#     Δ = c₊ - c₋
+#     K₊ = ScalarPower(scale, z₋,  Δ,  im)
+#     K₋ = ScalarPower(scale, z₊, -Δ, -im)
+#     return WienerHopfPair(K₊, K₋)
+# end
+
+# isolate_infpow(K::WienerHopfKernel; kwargs...) = isolate_infpow(leftlimit(K), rightlimit(K); kwargs...)

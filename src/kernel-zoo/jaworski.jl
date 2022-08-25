@@ -31,7 +31,7 @@ wavenumber(K::PoroelasticK) = K.k
 GammaKernel(K::PoroelasticK) = GammaKernel(wavenumber(K))
 
 poles²(K::PoroelasticK) = K.p²
-poles⁺(K::PoroelasticK) = forceabove(sqrt.(poles²(K)), Line())
+poles⁺(K::PoroelasticK) = [forceabove(x, Line()) for x in sqrt.(poles²(K))]
 
 function poles_poly(K::PoroelasticK)
     α₁², α₂² = K.p²
