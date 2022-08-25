@@ -36,12 +36,15 @@ HolomorphicFun.ScalarConstant(0.2)
 begin
 	let 
 		z = PhaseColors.ℂ(5);
-		x,y = PhaseColors.:ℂ2xy(z);
+		x,y = PhaseColors.ℂ2xy(z);
 		K = WienerHopfScalar.GammaKernel(0.4);
 
-		plot(x,y, PhaseColors.portrait(K.(z),PhaseColors.:math),yflip=false)
+		plot(x,y, PhaseColors.portrait(K.(z),PhaseColors.math),yflip=false)
 	end
 end
+
+# ╔═╡ 552e513a-75b9-4a94-b7c0-19b876fa0b9c
+md"## Define a new kernel"
 
 # ╔═╡ baeaaf12-10e1-49f6-a890-d6e62aba1b8e
 begin
@@ -61,16 +64,22 @@ begin
 	@noroots TestKernel
 end
 
+# ╔═╡ 7427ac26-5586-4b53-8235-278ae7ededab
+
+
 # ╔═╡ 295ae430-6174-4a4a-b9fc-c236a03648ac
 begin
 	let
 		z = PhaseColors.ℂ(5);
-		x,y = PhaseColors.:ℂ2xy(z);
+		x,y = PhaseColors.ℂ2xy(z);
 		K = TestKernel(0.4);
 
-		plot(x,y, PhaseColors.portrait(K.(z),PhaseColors.:math),yflip=false)
+		plot(x,y, PhaseColors.portrait(K.(z),PhaseColors.math),yflip=false)
 	end
 end
+
+# ╔═╡ 58d7aa6b-a7f1-4444-a54b-9445f28793ee
+c
 
 # ╔═╡ 098700b2-2bf0-49ca-a21f-941cf3246aee
 begin
@@ -93,6 +102,9 @@ end
 # ╠═80d3ed34-12e0-4c13-ba04-34c2b875a7f0
 # ╠═8112ea74-7aed-40db-a944-a1453fab43ed
 # ╠═ab3c9340-350e-4baf-838b-5b34679ff6a2
+# ╠═552e513a-75b9-4a94-b7c0-19b876fa0b9c
 # ╠═baeaaf12-10e1-49f6-a890-d6e62aba1b8e
+# ╠═7427ac26-5586-4b53-8235-278ae7ededab
 # ╠═295ae430-6174-4a4a-b9fc-c236a03648ac
+# ╠═58d7aa6b-a7f1-4444-a54b-9445f28793ee
 # ╠═098700b2-2bf0-49ca-a21f-941cf3246aee
