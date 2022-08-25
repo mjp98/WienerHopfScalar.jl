@@ -2,7 +2,7 @@ using WienerHopfScalar
 using ApproxFun
 using Test
 
-import WienerHopfScalar: forceabove, defaultscale
+import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles, roots
 
 @testset "WienerHopfScalar.jl" begin
 
@@ -44,6 +44,23 @@ import WienerHopfScalar: forceabove, defaultscale
         @testset "macroexpand" begin
             @test (@macroexpand @wienerhopf K₊(z) + K₋(z) + k) == :(K(z, true) + K(z, false) + k)
         end
+
+    end
+
+
+    @testset "generic" begin
+        struct TestKernel{T} <:WienerHopfKernel end
+        K = TestKernel{Float64}()
+        @test_throws ErrorException evaluate(K,0.2)
+        @test_throws ErrorException evaluate(K,0.2, true)
+        @test_throws ErrorException leftlimit(K)
+        @test_throws ErrorException rightlimit(K)
+    end
+
+
+    @testset "nopoles macro" begin
+        @test begin x = @nopoles TestKernel; r = TestKernel{Float64}(); isempty(poles(r)); end
+        @test begin x = @noroots TestKernel; r = TestKernel{Float64}(); isempty(roots(r)); end
 
     end
 
@@ -99,6 +116,7 @@ import WienerHopfScalar: forceabove, defaultscale
         @test F(z,true) == F(z,false)
         @test F(z,true)*F(z,false) == F(z)
         @test factorise(F) == F
+        @test WienerHopfScalar.value(F) == z
 
         u = randn(ComplexF64,2)
         U = [WienerHopfScalar.ScalarConstant(v) for v in u]
@@ -269,6 +287,12 @@ import WienerHopfScalar: forceabove, defaultscale
 
         @test all(isabove(Line(),z) for z in WienerHopfScalar.poles⁺(K))
 
+
+
+    end
+
+    @testset "rightvalue" begin
+        @test WienerHopfScalar.leftvalue(0.2,0.01) == WienerHopfScalar.rightvalue(0.2,-0.01)
     end
 
 

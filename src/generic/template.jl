@@ -1,9 +1,9 @@
 
 function evaluate(K::T, z) where {T<:WienerHopfKernel}
-    return @error "Implement evaluate(K,z) for K::$T"
+    return error("Implement evaluate(K,z) for K::$T")
 end
 function evaluate(K::T, z, u) where {T<:WienerHopfKernel}
-    return @error "Factorisation not known for type $T. Try factorise(K,sp) or implement explicitly."
+    return  error("Factorisation not known for type $T. Try factorise(K,sp) or implement explicitly.")
 end
 # function isolate_poleroot(K::T, sp) where {T<:WienerHopfKernel}
 #     return @error "Implement isolate_poleroot(K,sp) for K::$T"
@@ -12,8 +12,8 @@ end
 #     return @error "Implement isolate_inf(K,sp) for K::$T"
 # end
 
-leftlimit(K::T) where {T<:WienerHopfKernel} = @error "Define leftlimit(K) = K(-Inf)"
-rightlimit(K::T) where {T<:WienerHopfKernel} = @error "Define leftlimit(K) = K(-Inf)"
+leftlimit(K::T) where {T<:WienerHopfKernel} = error("Define leftlimit(K) = K(-Inf)")
+rightlimit(K::T) where {T<:WienerHopfKernel} = error("Define rightlimit(K) = K(+Inf)")
 
 
 
