@@ -14,7 +14,7 @@ using StaticUnivariatePolynomials
 using StructArrays
 using UnPack
 
-import ApproxFun: domain, space, ncoefficients, coefficients, setcanonicaldomain, evaluate
+import ApproxFun: domain, space, ncoefficients, coefficients, setcanonicaldomain, evaluate, factors
 import Base: +, -, *, /, inv, literal_pow, getindex, angle, exponent, ==, convert
 import HolomorphicFun: poles, roots
 import MacroTools: postwalk, @capture

@@ -2,7 +2,7 @@ using WienerHopfScalar
 using ApproxFun
 using Test
 
-import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles, roots
+import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles, roots, isabove
 
 @testset "WienerHopfScalar.jl" begin
 
@@ -151,7 +151,7 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
 
         @test γ[true](0.2) ≈ γ(0.2,true)
         @test defaultscale(γ) == k
-        @test factors(γ) = γ[true], γ[false]
+        @test factors(γ)[1] == γ[true]
     end
 
     @testset "NobleKernel" begin
