@@ -109,7 +109,7 @@ function logfactorise(f, sp...; z₋=-10.0im, z₊=10.0im + 10)
         return logfactorise(f / w, sp...) * factorise(w, sp[1])
     end
     if any(n != 0 for n in nbranch)
-        @warn "Branch cut crossed, fixing..."
+        @info "Branch cut crossed, fixing..."
         F = ApproxFun.setcanonicaldomain(Fun(f, sp...))
         function logf(z)
             for i in zip(xbranch, nbranch)

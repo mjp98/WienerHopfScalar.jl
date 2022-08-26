@@ -55,6 +55,8 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
         @test_throws ErrorException evaluate(K,0.2, true)
         @test_throws ErrorException leftlimit(K)
         @test_throws ErrorException rightlimit(K)
+        @test defaultscale(K) == 1
+        @test isabove(Line(),WienerHopfScalar.defaultpoint(K,true))
     end
 
 
@@ -149,6 +151,7 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
 
         @test γ[true](0.2) ≈ γ(0.2,true)
         @test defaultscale(γ) == k
+        @test factors(γ) = γ[true], γ[false]
     end
 
     @testset "NobleKernel" begin
@@ -162,14 +165,16 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
     @testset "robin kernel" begin
         sp = Chebyshev(Line{-1/4}(0.0))
         k = randn(ComplexF64)
-        K = RobinKernel(k,randn(ComplexF64))
+        μ = randn(ComplexF64)
+        K = RobinKernel(k,μ)
         L = isolate_inf(K,sp)
         @test L == GammaKernel(wavenumber(K))
         @test WienerHopfScalar.roots(K) == WienerHopfScalar.roots(NormalisedRobinKernel(K))
         @test GammaKernel(K,0.2) == GammaKernel(k)(0.2)
 
 
-        @test WienerHopfScalar.roots_poly(K) == WienerHopfScalar.roots_poly(NormalisedRobinKernel(K))
+        @test WienerHopfScalar.roots_poly(K) == WienerHopfScalar.roots_poly(NormalisedRobinKernel(k,μ))
+
 
 
         k = 1

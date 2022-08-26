@@ -14,7 +14,7 @@ end
 
 evaluate(K::SplitRationalKernel, z) = evaluate(K, z, true) * evaluate(K, z, false)
 
-(K::SplitRationalKernel)(u::Bool) = u ? K.plus : K.minus
+# (K::SplitRationalKernel)(u::Bool) = u ? K.plus : K.minus
 
 function evaluate(K::SplitRationalKernel, z, u)
     if u
@@ -24,8 +24,8 @@ function evaluate(K::SplitRationalKernel, z, u)
     end
 end
 
-poles(K::SplitRationalKernel, u) = poles(K(u))
-roots(K::SplitRationalKernel, u) = roots(K(u))
+# poles(K::SplitRationalKernel, u) = poles(K(u))
+# roots(K::SplitRationalKernel, u) = roots(K(u))
 
 function isolate_poleroot(K::WienerHopfKernel, d::Union{Space,Domain}, z₋=-10.0im, z₊=10.0im)
     L = factorise(ScalarRational(poles(K), roots(K)), d)
