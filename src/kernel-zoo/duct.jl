@@ -1,60 +1,64 @@
-# struct SDuctKernel{T,S} <: WienerHopfKernel
-#     γ::GammaKernel{T}
-#     h::S
-# end
-# SDuctKernel(k::Number,h::Number) = SDuctKernel(GammaKernel(k),h)
+struct SDuctKernel{T,S} <: WienerHopfKernel
+    γ::GammaKernel{T}
+    h::S
+end
+SDuctKernel(k::Number, h::Number) = SDuctKernel(GammaKernel(k), h)
 
-# GammaKernel(K::SDuctKernel) = K.γ
-# wavenumber(K::SDuctKernel) = wavenumber(GammaKernel(K))
-# halfheight(K::SDuctKernel,args...) = K.h
-# halfheights(K::SDuctKernel) = halfheight(K,true),halfheight(K,false)
-# totalheight(K::SDuctKernel) = sum(halfheights(K)...)
+GammaKernel(K::SDuctKernel) = K.γ
+GammaKernel(K::SDuctKernel,z) = K.γ(z)
+wavenumber(K::SDuctKernel) = wavenumber(GammaKernel(K))
+halfheight(K::SDuctKernel, args...) = K.h
+halfheights(K::SDuctKernel) = halfheight(K, true), halfheight(K, false)
+totalheight(K::SDuctKernel) = sum(halfheights(K)...)
 
-# function (K::SDuctKernel)(z)
-#     γ = GammaKernel(z)
-#     h = halfheight(K)
-#     return -γ*tanh(h*γ)/2
-# end
+function evaluate(K::SDuctKernel,z)
+    γ = GammaKernel(K,z)
+    h = halfheight(K)
+    return -γ*tanh(h*γ)/2
+end
 
-# root(K::SDuctKernel,u::Bool,n::Int) = γsinhγ_root(u,n,wavenumber(K),height(h))
+root(K::SDuctKernel,u::Bool,n::Int) = γsinhγ_root(u,n,wavenumber(K),halfheight(K))
 
-# function root_residue(K::SDuctKernel,u::Bool,n::Int)
-#     return -2*overγsinhγ_residue(u,n,wavenumber(K),halfheight(K))*((-1)^n)
-# end
+function root_residue(K::SDuctKernel,u::Bool,n::Int)
+    h = halfheight(K)
+    k = wavenumber(K)
+    return -2*overγsinhγ_residue(u,n,k,h)*((-1)^n)
+end
 
-# pole(K::SDuctKernel,u::Bool,n::Int) = coshγ_root(u,n,wavenumber(K),height(h))
+pole(K::SDuctKernel,u::Bool,n::Int) = coshγ_root(u,n,wavenumber(K),halfheight(K))
 
-# function pole_residue(K::SDuctKernel,u::Bool,n::Int)
-#     x = pole(K,u,n)
-#     h = halfheight(K)
-#     γ = K.γ(x)
-#     return -γ*sinh(γ*h)*overcoshγ_residue(u,n,wavenumber(K),h)/2
-# end
+function pole_residue(K::SDuctKernel,u::Bool,n::Int)
+    x = pole(K,u,n)
+    h = halfheight(K)
+    k = wavenumber(K)
+    γ = K.γ(x)
+    return -γ*sinh(γ*h)*overcoshγ_residue(u,n,k,h)/2
+end
 
-# # ------------------------------------------------------------
-# # sinhγ
-# # ------------------------------------------------------------
+# ------------------------------------------------------------
+# sinhγ
+# ------------------------------------------------------------
 
-# sinhγ_root(u,n,k,h) = forceabove(sqrt(k^2 - (n*π/h)^2),Line(),u)
-# oversinhγ_residue(u,n,k,h) = (im*((-1)^(n+1))*n*π)/(sinhγ_root(u,n,k,h)*h^2)
+sinhγ_root(u,n,k,h) = forceabove(sqrt(complex(k^2 - (n*π/h)^2)),Line(),u)
+oversinhγ_residue(u,n,k,h) = (im*((-1)^(n+1))*n*π)/(sinhγ_root(u,n,k,h)*h^2)
 
-# # ------------------------------------------------------------
-# # γsinhγ
-# # ------------------------------------------------------------
+# ------------------------------------------------------------
+# γsinhγ
+# ------------------------------------------------------------
 
-# γsinhγ_root(u,n,k,h) = sinhγ_root(u,n,k,h)
+γsinhγ_root(u,n,k,h) = sinhγ_root(u,n,k,h)
 
-# function overγsinhγ_residue(u,n,k,h)
-#     n == 0 && return inv(2*h*γsinhγ_root(u,n,k,h))
-#     return inv(h*γsinhγ_root(u,n,k,h))*((-1)^n)
-# end
+function overγsinhγ_residue(u,n,k,h)
+    n == 0 && return inv(2*h*γsinhγ_root(u,n,k,h))
+    return inv(h*γsinhγ_root(u,n,k,h))*((-1)^n)
+end
 
-# # ------------------------------------------------------------
-# # coshγ
-# # ------------------------------------------------------------
+# ------------------------------------------------------------
+# coshγ
+# ------------------------------------------------------------
 
-# coshγ_root(u,n,k,h) = forceabove(sqrt(k^2 - ((n+0.5)*π/h)^2),Line(),u)
-# overcoshγ_residue(u,n,k,h) = ((-1)^n)*(n+0.5)*π/(coshγ_root(u,n,k,h)*h^2)
+coshγ_root(u,n,k,h) = forceabove(sqrt(complex(k^2 - ((n+0.5)*π/h)^2)),Line(),u)
+overcoshγ_residue(u,n,k,h) = ((-1)^n)*(n+0.5)*π/(coshγ_root(u,n,k,h)*h^2)
 
 # struct ADuctKernel{T,S} <: WienerHopfKernel
 #     γ::GammaKernel{T}
