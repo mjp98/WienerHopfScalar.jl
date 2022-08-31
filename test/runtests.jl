@@ -309,7 +309,8 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
     end
 
 
-    import WienerHopfScalar: SDuctKernel, root, pole, root_residue, pole_residue
+    import WienerHopfScalar: SDuctKernel, ADuctKernel
+    import WienerHopfScalar: root, pole, root_residue, pole_residue
 
 
     residue(f, x::Number; N=200, epsilon=1e-4) = -sum(f.(x .- epsilon * exp.(2pi * im * collect(1:N))) .* exp.(2pi * im * collect(1:N))) * epsilon / N
@@ -375,6 +376,31 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
         end
 
         K = SDuctKernel(k, h)
+
+        @testset "Poles" begin
+            for u in (true, false)
+                for n in 0:10
+                    Kz = check_pole(K, u, n)
+                    @test abs(Kz) > 1e8
+                    a, b = check_pole_residue(K,u,n)
+                    @test a ≈ b rtol = 1e-3
+                end
+            end
+        end
+
+        @testset "Roots" begin
+            for u in (true, false)
+                for n in 0:10
+                    Kz = check_root(K, u, n)
+                    @test abs(Kz) < 1e-8
+                    a, b = check_root_residue(K,u,n)
+                    @test a ≈ b rtol = 1e-3
+                end
+            end
+        end
+
+
+        K = ADuctKernel(k, h, h*π)
 
         @testset "Poles" begin
             for u in (true, false)
