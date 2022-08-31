@@ -41,17 +41,10 @@ export wavenumber, compliance
 
 abstract type WienerHopfKernel <: AbstractScalarFunction end
 
-include("macros/wienerhopf.jl")
-include("macros/nopoles.jl")
-
+include("macros/macros.jl")
 include("util/util.jl")
-
-include("kernel-basic/nan.jl")
-include("kernel-basic/constant.jl")
-include("kernel-basic/rational.jl")
-
+include("kernel-basic/basic.jl")
 include("generic/generic.jl")
-
 include("kernel-zoo/zoo.jl")
 
 end
