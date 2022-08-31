@@ -83,12 +83,12 @@ import WienerHopfScalar: forceabove, defaultscale, leftlimit, rightlimit, poles,
 
         z = randn(ComplexF64)
 
-        import WienerHopfScalar: one2zero_phase
+        import WienerHopfScalar: one2zero
 
-        f = isolate_inf(a, b; z₊=1im, z₋=-10im)
+        f = isolate_inf(a, b; innerpoint=1im, outerpoint=-10im)
 
-        @test one2zero_phase(f, ∞₊) ≈ 0 atol = 1e-12
-        @test one2zero_phase(f, ∞₋) ≈ 1 atol = 1e-12
+        @test one2zero(f, ∞₊) ≈ 0 atol = 1e-12
+        @test one2zero(f, ∞₋) ≈ 1 atol = 1e-12
         @test f(∞₋) ≈ a
         @test f(∞₊) ≈ b
         @test f(z, true) * f(z, false) ≈ f(z) atol = 100 * eps()

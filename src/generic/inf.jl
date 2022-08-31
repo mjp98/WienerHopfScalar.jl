@@ -1,67 +1,76 @@
-isolate_inf(K::WienerHopfKernel; kwargs...) = isolate_inf(leftlimit(K), rightlimit(K); kwargs...)
+function isolate_inf(
+    K::WienerHopfKernel;
+    innerpoint = defaultpoint(K, true),
+    outerpoint = defaultpoint(K,false)
+    )
 
-function parse_inf(l, r; tol=1e-14)
+    return isolate_inf(leftlimit(K), rightlimit(K); innerpoint, outerpoint)
+end
+
+function isolate_inf(
+    l,
+    r;
+    innerpoint=defaultpoint(true),
+    outerpoint=defaultpoint(false),
+    tol=1e-14
+    )
+
+    check_asymptotes(l, r; tol)
+
+    return split_asymptotes(l, r, innerpoint, outerpoint)
+end
+
+function check_asymptotes(l, r; tol=1e-14)
     abs(l) < tol && return @error "K ≈ 0 as z → -∞"
     abs(r) < tol && return @error "K ≈ 0 as z → +∞"
+    abs(l) > inv(tol) && return @error "abs(K) >> 1 as z → -∞"
+    abs(r) > inv(tol) && return @error "abs(K) >> 1 as z → +∞"
 end
 
-struct IsolatedInfLog{T<:Number} <: WienerHopfKernel
-    c₊::T
-    c₋::T
-    z₊::T
-    z₋::T
+function split_asymptotes(
+    l,
+    r,
+    innerpoint=defaultpoint(true),
+    outerpoint=defaultpoint(false)
+    )
+    return SplitAsymptotes(cphase(l),cphase(r),innerpoint,outerpoint)
 end
 
-cphase(K::IsolatedInfLog) = K.c₋, K.c₊
 
-function half2zero_phase(f::IsolatedInfLog, z, u)
-    if u
-        return -(log(-im * (z - f.z₋)) - log(-1im)) / (-i2π)
-    else
-        return  (log( im * (z - f.z₊)) - log( 1im)) / (-i2π)
+struct SplitAsymptotes{T<:Number} <: WienerHopfKernel
+    lphase::T
+    rphase::T
+    innerpoint::T
+    outerpoint::T
+    function SplitAsymptotes(a,b,c,d)
+        x = promote(a,b,c,d)
+        new{eltype(x)}(x...)
     end
 end
 
-function one2zero_phase(f::IsolatedInfLog, z)
-    return half2zero_phase(f, z, true) + half2zero_phase(f, z, false)
+innerpoint(K::SplitAsymptotes) = K.innerpoint
+outerpoint(K::SplitAsymptotes) = K.outerpoint
+lphase(K::SplitAsymptotes) = K.lphase
+rphase(K::SplitAsymptotes) = K.rphase
+
+function half2zero(f::SplitAsymptotes, z::Number, u::Bool)
+    if u
+        return  (log(-im * (z - outerpoint(f))) + iπ/2) / i2π
+    else
+        return -(log( im * (z - innerpoint(f))) - iπ/2) / i2π
+    end
 end
 
-function evaluate(f::IsolatedInfLog, z)
-    c₋, c₊ = cphase(f)
-    x = c₊ + (c₋ - c₊) * one2zero_phase(f, z)
-    return exp(i2π * x)
+function one2zero(f::SplitAsymptotes, z::Number)
+    return half2zero(f, z, true) + half2zero(f, z, false)
 end
 
-function evaluate(f::IsolatedInfLog, z, u)
-    c₋, c₊ = cphase(f)
-    x = c₊ / 2 + (c₋ - c₊) * half2zero_phase(f, z,  u)
-    return exp(i2π * x)
+function evaluate(f::SplitAsymptotes, z::Number)
+    theta = rphase(f) + (lphase(f) - rphase(f)) * one2zero(f, z)
+    return exp(i2π * theta)
 end
 
-function isolate_inf(l, r; z₊=10im, z₋=-10im, tol=1e-14)
-    parse_inf(l, r; tol)
-    isolated = make_inf(l, r, z₊, z₋)
-    return isolated
+function evaluate(f::SplitAsymptotes, z::Number, u::Bool)
+    theta = rphase(f)/2 + (lphase(f) - rphase(f)) * half2zero(f, z, u)
+    return exp(i2π * theta)
 end
-
-function make_inf(l, r, z₊=10im, z₋=-10im)
-    c₋, c₊ = cphase(l), cphase(r)
-    return IsolatedInfLog(promote(c₊, c₋, z₊, z₋)...)
-end
-
-# function isolate_infpow(l, r; z₊=10im, z₋=-10im, tol=1e-14)
-#     parse_inf(l, r; tol)
-#     isolated = make_infpow(l, r, z₊, z₋)
-#     return isolated
-# end
-
-# function make_infpow(l, r, z₊=10im, z₋=-10im)
-#     c₋, c₊ = cphase(l), cphase(r)
-#     scale = cispi(c₊)
-#     Δ = c₊ - c₋
-#     K₊ = ScalarPower(scale, z₋,  Δ,  im)
-#     K₋ = ScalarPower(scale, z₊, -Δ, -im)
-#     return WienerHopfPair(K₊, K₋)
-# end
-
-# isolate_infpow(K::WienerHopfKernel; kwargs...) = isolate_infpow(leftlimit(K), rightlimit(K); kwargs...)

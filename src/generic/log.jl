@@ -100,12 +100,18 @@ for op in [:coefficients, :ncoefficients, :space, :domain]
     @eval $op(L::LogSplitKernel) = $op(splitlog(L))
 end
 
-function logfactorise(f, sp...; z₋=-10.0im, z₊=10.0im + 10)
+function logfactorise(
+    f,
+    sp...;
+    innerpoint=defaultpoint(true),
+    outerpoint=defaultpoint(false)
+    )
+
     windingnumber, xbranch, nbranch, F = windingdata(f, sp...)
     @info "winding_number(K,Γ) = $windingnumber"
     if windingnumber != 0
         @info "isolating winding_number"
-        w = isolate_index(windingnumber, z₊, z₋)
+        w = isolate_index(windingnumber, innerpoint, outerpoint)
         return logfactorise(f / w, sp...) * factorise(w, sp[1])
     end
     if any(n != 0 for n in nbranch)

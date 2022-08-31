@@ -1,7 +1,12 @@
-function isolate_index(n::Int, z₊=10.0im, z₋=-10.0im)
-    # can we make this an already factorised object?
-    n > 0 && return ScalarRational(z₊ * ones(n), z₋ * ones(n))
-    n < 0 && return ScalarRational(z₋ * ones(-n), z₊ * ones(-n))
+function isolate_index(
+    n::Int,
+    innerpoint= defaultpoint(true),
+    outerpoint = defaultpoint(false)
+    )
+
+    n > 0 && return ScalarRational(innerpoint * ones(n), outerpoint * ones(n))
+    n < 0 && return ScalarRational(outerpoint * ones(-n), innerpoint * ones(-n))
+
     return factorise(ScalarConstant(1))
 end
 

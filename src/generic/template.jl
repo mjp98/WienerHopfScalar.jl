@@ -16,5 +16,6 @@ function rightlimit(K::T) where {T<:WienerHopfKernel}
 end
 
 defaultspace(::WienerHopfKernel) = Chebyshev(Line{-1 / 4}(0.0))
-defaultscale(K::WienerHopfKernel) = 1
-defaultpoint(K::WienerHopfKernel, u::Bool) = 10im * defaultscale(K) * lsign(u) + randn(Float64) - 10
+defaultscale(::WienerHopfKernel) = 1.0
+defaultpoint(u::Bool) = 10 *(1im * lsign(u) + u)
+defaultpoint(K::WienerHopfKernel, u::Bool) = defaultscale(K) * defaultpoint(u)
