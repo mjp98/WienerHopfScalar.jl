@@ -1,10 +1,11 @@
 # Generic factorization
 
-function factorise(K::WienerHopfKernel, sp::Space)
-    A = isolate_inf(K)
-    R = isolate_poleroot(K, Line()) # Split contour is real axis.
-    normal_kernel = K/(A*R)
+function factorise(kernel::WienerHopfKernel, sp::Space)
+    asymptotes = isolate_inf(kernel)
+    rational = isolate_poleroot(kernel, Line()) # Split contour is real axis.
+    
+    normalised_kernel = kernel / (asymptotes * rational)
 
-    return (logfactorise(K / (A * R), sp) * A) * R
+    return (logfactorise(normalised_kernel, sp) * asymptotes) * rational
 end
 factorise(K::WienerHopfKernel) = factorise(K, defaultspace(K))
