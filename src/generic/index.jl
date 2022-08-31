@@ -28,6 +28,11 @@ function logbranchdata(f::Fun; ε=1e-6)
     return BranchData(x, n)
 end
 
+struct BranchJump{T<:Number}
+    x::T
+    n::Int
+end
+
 struct BranchData{T}
     jumps::StructVector{BranchJump{T}}
 end
@@ -36,11 +41,6 @@ BranchData(a, b) = BranchData(StructArray{BranchJump{eltype(a)}}((a, b)))
 
 jumps(d::BranchData) = d.jumps
 windingnumber(d::BranchData) = last(jumps(d).n)
-
-struct BranchJump{T<:Number}
-    x::T
-    n::Int
-end
 
 struct ContinuousLog{T<:Fun,S<:BranchData}
     f::T
