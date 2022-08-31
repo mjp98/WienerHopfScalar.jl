@@ -9,9 +9,14 @@ function RawlinsKernel(k::T,μ::S,δ::V) where {T<:Number,S,V}
     return RawlinsKernel(GammaKernel(k),μ,δ)
 end
 GammaKernel(K::RawlinsKernel) = K.γ
+GammaKernel(K::RawlinsKernel,z) = K.γ(z)
+compliance(K::RawlinsKernel) = K.μ
+pressurefree_wavenumber(K::RawlinsKernel) = K.δ
 wavenumber(K::RawlinsKernel) = wavenumber(GammaKernel(K))
 
-evaluate(K::RawlinsKernel,α) = 1 + K.μ*(α-K.δ)/K.γ(α)
+function evaluate(K::RawlinsKernel,α)
+    return 1 + compliance(K)*(α-pressurefree_wavenumber(K))/GammaKernel(K,α)
+end
 
 function roots_poly(K::RawlinsKernel)
     @unpack μ,γ,δ = K
@@ -23,5 +28,5 @@ end
 
 poles(::RawlinsKernel{T},args...) where T = T[]
 
-leftlimit(K::RawlinsKernel) = 1-K.μ
-rightlimit(K::RawlinsKernel) = 1+K.μ
+leftlimit(K::RawlinsKernel) = 1-compliance(K)
+rightlimit(K::RawlinsKernel) = 1+compliance(K)
