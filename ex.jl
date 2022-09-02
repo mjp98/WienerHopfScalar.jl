@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ bd829ece-2476-11ed-1d11-8bc94bcf2111
 begin 
 	using Pkg
-	Pkg.activate(".new")
+	Pkg.activate(".scalarwienerhopf")
 		Pkg.add(PackageSpec(url="https://github.com/mjp98/HolomorphicFun.jl"));
 		Pkg.add(PackageSpec(url="https://github.com/mjp98/RiemannHilbert.jl",rev="update1_8"));
 		Pkg.add(PackageSpec(url="https://github.com/mjp98/WienerHopf.jl",rev="update1_8"));
@@ -21,6 +21,9 @@ begin
 	Pkg.add("Plots");
 end;
 
+# ╔═╡ 2c3e451d-23d6-43f9-931d-627ccb807576
+Pkg.add(PackageSpec(url="https://github.com/mjp98/Aeroacoustics.jl"));
+
 # ╔═╡ 80d3ed34-12e0-4c13-ba04-34c2b875a7f0
 begin 
 	using WienerHopfScalar
@@ -29,8 +32,17 @@ begin
 	using Plots
 end
 
-# ╔═╡ 996d9507-b396-4b08-ba81-5287dc840c00
+# ╔═╡ d9fce9ca-d87f-4e2a-99ae-bf7b74a80fcc
+using Aeroacoustics
 
+# ╔═╡ 996d9507-b396-4b08-ba81-5287dc840c00
+md"""
+
+# Scalar Wiener Hopf
+
+WienerHopfScalar.jl
+
+"""
 
 # ╔═╡ 8112ea74-7aed-40db-a944-a1453fab43ed
 HolomorphicFun.ScalarConstant(0.2)
@@ -99,32 +111,11 @@ begin
 	end
 end
 
-# ╔═╡ c816e57f-d24e-4057-889a-74c2a2009d1c
-begin 
-	let
-		K = TestKernel(0.4);
-		@time L = factorise(K)
-		#@time L(0.2,true)
-		elements(L)
-	end
-end
-
-# ╔═╡ 69ecc308-8b17-4edb-9876-1abd817d06d1
-begin
-K = TestKernel(0.4);
-		@time L = factorise(K)
-		#@time L(0.2,true)
-		X = HolomorphicFun.elements(L)[1]
-end
-
-# ╔═╡ 42b96934-8044-432f-a268-19e173aaabbf
-@code_warntype HolomorphicFun.elements(HolomorphicFun.denominator(X.f))[2](0.2+im)
-
-# ╔═╡ e54d6366-7234-4a51-8c17-f231e9da0d5d
-@code_warntype HolomorphicFun.denominator(X.f)(0.2+im)
+# ╔═╡ 0958fc8a-d8ed-4119-886c-6fa0185a5a15
+spectrum = GaussianEnergySpectrum(0.2)
 
 # ╔═╡ Cell order:
-# ╠═996d9507-b396-4b08-ba81-5287dc840c00
+# ╟─996d9507-b396-4b08-ba81-5287dc840c00
 # ╠═bd829ece-2476-11ed-1d11-8bc94bcf2111
 # ╠═791f2892-0df1-4127-9b10-3f545c100e0c
 # ╠═80d3ed34-12e0-4c13-ba04-34c2b875a7f0
@@ -136,7 +127,6 @@ end
 # ╠═e4a588fa-edb7-4c5e-8b68-2d45ae1aa474
 # ╠═295ae430-6174-4a4a-b9fc-c236a03648ac
 # ╠═098700b2-2bf0-49ca-a21f-941cf3246aee
-# ╠═c816e57f-d24e-4057-889a-74c2a2009d1c
-# ╠═69ecc308-8b17-4edb-9876-1abd817d06d1
-# ╠═42b96934-8044-432f-a268-19e173aaabbf
-# ╠═e54d6366-7234-4a51-8c17-f231e9da0d5d
+# ╠═2c3e451d-23d6-43f9-931d-627ccb807576
+# ╠═d9fce9ca-d87f-4e2a-99ae-bf7b74a80fcc
+# ╠═0958fc8a-d8ed-4119-886c-6fa0185a5a15
